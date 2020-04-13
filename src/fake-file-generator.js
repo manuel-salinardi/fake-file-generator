@@ -1,6 +1,8 @@
 const fs = require('fs');
 const buffer = require('buffer');
+const os = require('os');
 
+// the max integer value that Buffer.alloc(size) supports
 const bufferMaxLength = buffer.constants.MAX_LENGTH;
 
 const debug = require('debug')('fake-file-generator:main');
@@ -8,11 +10,14 @@ const debug = require('debug')('fake-file-generator:main');
 const FakeFileGeneratorError = require('./fake-file-generator-error');
 
 class FakeFileGenerator {
-    static generateFile(filePath, size, options, callBack) {
-        debug(`generateFile: filePath ${filePath}, size ${size}`);
+    static generateFile(filePath, size, options = {}, callBack) {
+        const self = this;
+        debug(`generateFile: filePath ${filePath}, size ${size}, options: ${JSON.stringify(options)}`);
+        debug(`os.totalmem(), ${os.freemem()}`);
 
         return Promise.resolve()
             .then(checkParameters)
+            .then(checkOptions)
             .then(generate)
             .catch(err => {
                 debug(err);
@@ -38,6 +43,15 @@ class FakeFileGenerator {
             }
             if (size > bufferMaxLength) {
                 debug(`size parameter > bufferMaxLength. size: ${size}, bufferMaxLength: ${bufferMaxLength}`);
+            }
+            const availableSystemSpace = os.freemem();
+            if (size >= availableSystemSpace) {
+                throw new FakeFileGeneratorError(`wrong value size parameter, you dont have enough space in your system. size: ${size}, available space: ${availableSystemSpace}`);
+            }
+        }
+        function checkOptions() {
+            if (options.type && options.type !== 'txt') {
+                throw new FakeFileGeneratorError(`unknown file type: ${options.type}`);
             }
         }
         function generate() {
@@ -71,19 +85,28 @@ class FakeFileGenerator {
 
                     writableStream.on('drain', () => {
                         if (chunksNumbersToWrite > 0) {
-                            writableStream.write(Buffer.alloc(highWaterMark));
+                            writableStream.write(self.getBuffer(options.type, highWaterMark));
                             chunksNumbersToWrite--;
                         } else {
                             if (restBytes) {
-                                writableStream.write(Buffer.alloc(restBytes));
+                                writableStream.write(self.getBuffer(options.type, restBytes));
                             }
                             writableStream.end();
                         }
                     });
-                    writableStream.write(Buffer.alloc(highWaterMark));
+                    writableStream.write(self.getBuffer(options.type, highWaterMark));
                     chunksNumbersToWrite--;
                 }
             })
+        }
+    }
+
+    static getBuffer(type, size) {
+        if (!type) {
+            return Buffer.alloc(size);
+        }
+        if (type === 'txt') {
+            return Buffer.alloc(size).fill('abcdefghilmnopqrstuvz');
         }
     }
 
