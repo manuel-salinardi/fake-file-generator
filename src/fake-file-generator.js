@@ -1,10 +1,11 @@
 const fs = require('fs');
+const buffer = require('buffer');
+
+const bufferMaxLength = buffer.constants.MAX_LENGTH;
 
 const debug = require('debug')('fake-file-generator:main');
 
 const FakeFileGeneratorError = require('./fake-file-generator-error');
-const fsPromise = require('./fsPromise');
-
 
 class FakeFileGenerator {
     static generateFile(filePath, size, options, callBack) {
@@ -35,32 +36,53 @@ class FakeFileGenerator {
             if (size !== 0 && typeof size !== 'undefined' && typeof size !== 'number') {
                 throw new FakeFileGeneratorError(`wrong type size parameter, should be number, but found: ${typeof size}`);
             }
+            if (size > bufferMaxLength) {
+                debug(`size parameter > bufferMaxLength. size: ${size}, bufferMaxLength: ${bufferMaxLength}`);
+            }
         }
         function generate() {
             return new Promise((resolve, reject) => {
-                const buffer = Buffer.alloc(size);
-                buffer.
-                debugger
-                const writableStream = fs.createWriteStream(filePath);
-
-                console.log(writableStream.writableHighWaterMark)
+                const writableStream = fs.createWriteStream(filePath, {emitClose: true});
 
                 writableStream.on('error', reject);
-                writableStream.on('pause', () => {
-                    debug('stream paused')
-                });
-                writableStream.on('resume', () => {
-                    debug('stream resumed')
-                });
+                writableStream.on('pause', () => debug('stream paused'));
+                writableStream.on('resume', () => debug('stream resumed'));
                 writableStream.on('finish', () => {
-                    debug('stream finished')
+                    debug('stream finished');
+                    writableStream.destroy();
                 });
                 writableStream.on('close', () => {
                     debug('stream closed')
+                    resolve();
                 });
-                writableStream.on('drain', () => {
-                    debug('stream drain')
-                });
+
+                const highWaterMark = writableStream.writableHighWaterMark;
+
+                if (size <= highWaterMark) {
+                    writableStream.write(Buffer.alloc(size));
+                    writableStream.end();
+                } else {
+                    let chunksNumbersToWrite = Math.floor(size / highWaterMark);
+                    const restBytes = size % highWaterMark;
+
+                    debug('highWaterMark', highWaterMark);
+                    debug('chunksNumbersToWrite', chunksNumbersToWrite);
+                    debug('restBytes', restBytes);
+
+                    writableStream.on('drain', () => {
+                        if (chunksNumbersToWrite > 0) {
+                            writableStream.write(Buffer.alloc(highWaterMark));
+                            chunksNumbersToWrite--;
+                        } else {
+                            if (restBytes) {
+                                writableStream.write(Buffer.alloc(restBytes));
+                            }
+                            writableStream.end();
+                        }
+                    });
+                    writableStream.write(Buffer.alloc(highWaterMark));
+                    chunksNumbersToWrite--;
+                }
             })
         }
     }

@@ -2,7 +2,7 @@ const debug = require('debug')('fake-file-generator:test');
 const assert = require('assert').strict;
 const path = require('path');
 
-const FsPromise = require('../src/fsPromise');
+const fsPromise = require('../src/fsPromise');
 const Utils = require('../src/utils');
 
 const FakeFileGenerator = require('../index');
@@ -33,7 +33,6 @@ describe('writeFile', () => {
         /**
          * make file of 50MB type png
          */
-        debugger;
         const fileName = 'test.png';
         const filePath = path.join(filesPath, fileName);
 
@@ -47,14 +46,13 @@ describe('writeFile', () => {
             })
 
         function generateFile() {
-            debugger;
             return FakeFileGenerator.generateFile(filePath, size);
         }
         async function checkGeneratedFile() {
-            const fileToCheck = await FsPromise.access(filePath);
-            console.log('fileToCheck', fileToCheck);
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
         }
-    })
+    }, 100000)
 })
 
 
