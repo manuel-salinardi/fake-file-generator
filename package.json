@@ -1,0 +1,30 @@
+{
+  "name": "fake-file-generator",
+  "version": "1.0.0",
+  "description": "File generator at specific type and size",
+  "main": "index.js",
+  "engines": {
+    "node": ">=10.16.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manuel-salinardi/fake-file-generator.git"
+  },
+  "keywords": [
+    "file-generator",
+    "fake-file-generator"
+  ],
+  "author": "Manuel Salinardi <manuel.salinardi@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/manuel-salinardi/fake-file-generator/issues"
+  },
+  "homepage": "https://github.com/manuel-salinardi/fake-file-generator#readme",
+  "devDependencies": {
+    "jest": "25.3.0"
+  }
+}
