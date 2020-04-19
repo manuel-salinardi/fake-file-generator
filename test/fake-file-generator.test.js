@@ -1,6 +1,7 @@
 const buffer = require('buffer');
 const assert = require('assert').strict;
 const path = require('path');
+const { fork } = require('child_process');
 
 const fsPromise = require('../src/fsPromise');
 const Utils = require('../src/utils');
@@ -270,3 +271,28 @@ describe('writeFile txt', () => {
         }
     }, 100000)
 });
+
+describe('cli mode', () => {
+    test('generate not typed file', async () => {
+
+        const indexFilePath = path.join(process.cwd(), 'index.js');
+
+        const fileName = 'test.png';
+        const filePath = path.join(filesPath, fileName);
+
+        const size = Utils.megabyteToByte(1);
+
+        const forked = fork(indexFilePath, ['--fileName', filePath, '--size', size], {
+            env: { DEBUG: 'fake-file-generator:*' }
+        });
+
+        await new Promise((resolve, reject) => {
+            forked.on('close', resolve)
+            forked.on('error', reject)
+        })
+
+        const fileToCheckStats = await fsPromise.stat(filePath);
+        assert.strictEqual(fileToCheckStats.size, size);
+
+    }, 100000)
+})

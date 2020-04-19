@@ -63,14 +63,5 @@ class FakeFileGenerator {
             return objectFileType.makeFile(filePath, size);
         }
     }
-
-    static getBuffer(type, size) {
-        if (!type) {
-            return Buffer.alloc(size);
-        }
-        if (type === 'txt') {
-            return Buffer.alloc(size).fill('abcdefghilmnopqrstuvz');
-        }
-    }
 }
 module.exports = FakeFileGenerator;
