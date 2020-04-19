@@ -2,7 +2,8 @@ const {promisify} = require('util');
 const fs = require('fs');
 
 const fsPromise = {
-    stat: promisify(fs.stat)
+    stat: promisify(fs.stat),
+    readFile: promisify(fs.readFile),
 }
 
 class FsPromise {

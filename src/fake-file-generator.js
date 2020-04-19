@@ -1,6 +1,9 @@
-const fs = require('fs');
 const buffer = require('buffer');
-const os = require('os');
+
+const Utils = require('./utils');
+
+const Txt = require('./file-types/txt');
+const NoType = require('./file-types/no-type');
 
 // the max integer value that Buffer.alloc(size) supports
 const bufferMaxLength = buffer.constants.MAX_LENGTH;
@@ -10,10 +13,8 @@ const debug = require('debug')('fake-file-generator:main');
 const FakeFileGeneratorError = require('./fake-file-generator-error');
 
 class FakeFileGenerator {
-    static generateFile(filePath, size, options = {}, callBack) {
-        const self = this;
-        debug(`generateFile: filePath ${filePath}, size ${size}, options: ${JSON.stringify(options)}`);
-        debug(`os.totalmem(), ${os.freemem()}`);
+    static generateFile(filePath, size, options = {}) {
+        debug(`generateFile: filePath ${filePath}, size ${Utils.formatNumber(size)}, options: ${JSON.stringify(options)}`);
 
         return Promise.resolve()
             .then(checkParameters)
@@ -35,18 +36,14 @@ class FakeFileGenerator {
             if (typeof filePath !== 'string') {
                 throw new FakeFileGeneratorError(`wrong type required filePath parameter, should be string, but found: ${typeof filePath}`);
             }
-            if (size === 0) {
-                throw new FakeFileGeneratorError(`size parameter cannot be 0`);
+            if (size <= 0) {
+                throw new FakeFileGeneratorError(`size parameter cannot be equal or less than 0`);
             }
             if (size !== 0 && typeof size !== 'undefined' && typeof size !== 'number') {
                 throw new FakeFileGeneratorError(`wrong type size parameter, should be number, but found: ${typeof size}`);
             }
             if (size > bufferMaxLength) {
-                debug(`size parameter > bufferMaxLength. size: ${size}, bufferMaxLength: ${bufferMaxLength}`);
-            }
-            const availableSystemSpace = os.freemem();
-            if (size >= availableSystemSpace) {
-                throw new FakeFileGeneratorError(`wrong value size parameter, you dont have enough space in your system. size: ${size}, available space: ${availableSystemSpace}`);
+                debug(`size parameter > bufferMaxLength. size: ${Utils.formatNumber(size)}, bufferMaxLength: ${Utils.formatNumber(bufferMaxLength)}`);
             }
         }
         function checkOptions() {
@@ -55,49 +52,14 @@ class FakeFileGenerator {
             }
         }
         function generate() {
-            return new Promise((resolve, reject) => {
-                const writableStream = fs.createWriteStream(filePath, {emitClose: true});
+            let objectFileType;
 
-                writableStream.on('error', reject);
-                writableStream.on('pause', () => debug('stream paused'));
-                writableStream.on('resume', () => debug('stream resumed'));
-                writableStream.on('finish', () => {
-                    debug('stream finished');
-                    writableStream.destroy();
-                });
-                writableStream.on('close', () => {
-                    debug('stream closed')
-                    resolve();
-                });
+            switch (options.type) {
+                case 'txt': objectFileType = new Txt(); break;
+                default: objectFileType = new NoType();
+            }
 
-                const highWaterMark = writableStream.writableHighWaterMark;
-
-                if (size <= highWaterMark) {
-                    writableStream.write(Buffer.alloc(size));
-                    writableStream.end();
-                } else {
-                    let chunksNumbersToWrite = Math.floor(size / highWaterMark);
-                    const restBytes = size % highWaterMark;
-
-                    debug('highWaterMark', highWaterMark);
-                    debug('chunksNumbersToWrite', chunksNumbersToWrite);
-                    debug('restBytes', restBytes);
-
-                    writableStream.on('drain', () => {
-                        if (chunksNumbersToWrite > 0) {
-                            writableStream.write(self.getBuffer(options.type, highWaterMark));
-                            chunksNumbersToWrite--;
-                        } else {
-                            if (restBytes) {
-                                writableStream.write(self.getBuffer(options.type, restBytes));
-                            }
-                            writableStream.end();
-                        }
-                    });
-                    writableStream.write(self.getBuffer(options.type, highWaterMark));
-                    chunksNumbersToWrite--;
-                }
-            })
+            return objectFileType.makeFile(filePath, size);
         }
     }
 
@@ -108,10 +70,6 @@ class FakeFileGenerator {
         if (type === 'txt') {
             return Buffer.alloc(size).fill('abcdefghilmnopqrstuvz');
         }
-    }
-
-    static generateFileSync() {
-
     }
 }
 module.exports = FakeFileGenerator;

@@ -1,9 +1,6 @@
 const buffer = require('buffer');
 const assert = require('assert').strict;
 const path = require('path');
-const os = require('os');
-
-const debug = require('debug')('fake-file-generator:test');
 
 const fsPromise = require('../src/fsPromise');
 const Utils = require('../src/utils');
@@ -24,20 +21,8 @@ describe('megabytes to bytes', () => {
     })
 })
 
-describe('check functions', () => {
-    test('check writeFileSync', () => {
-        assert.strictEqual(typeof FakeFileGenerator.generateFile, 'function');
-    })
-    test('check writeFile', () => {
-        assert.strictEqual(typeof FakeFileGenerator.generateFile, 'function');
-    })
-})
-
-describe('writeFile', () => {
-    test('generate file at specific size, bigger than buffer.constants.MAX_LENGTH', () => {
-        /**
-         * make file of 50MB type png
-         */
+describe('writeFile not typed', () => {
+    test('generate file not typed at specific size, bigger than buffer.constants.MAX_LENGTH', () => {
         const fileName = 'test.png';
         const filePath = path.join(filesPath, fileName);
 
@@ -58,7 +43,7 @@ describe('writeFile', () => {
             assert.strictEqual(fileToCheckStats.size, size);
         }
     }, 100000)
-    test('generate file at specific size, smaller than buffer.constants.MAX_LENGTH', () => {
+    test('generate file not typed at specific size, smaller than buffer.constants.MAX_LENGTH', () => {
         const fileName = 'test.png';
         const filePath = path.join(filesPath, fileName);
 
@@ -79,7 +64,7 @@ describe('writeFile', () => {
             assert.strictEqual(fileToCheckStats.size, size);
         }
     }, 100000)
-    test('generate file at specific size, smaller highWaterMark', () => {
+    test('generate file not typed at specific size, smaller highWaterMark', () => {
         const fileName = 'test.png';
         const filePath = path.join(filesPath, fileName);
 
@@ -101,67 +86,187 @@ describe('writeFile', () => {
             assert.strictEqual(fileToCheckStats.size, size);
         }
     })
-    test('generate file at specific size, bigger than system available memory', async () => {
-        const fileName = 'test.png';
+})
+
+describe('writeFile txt', () => {
+    test('generate file txt, (size less than watermark)', () => {
+
+        const expectedFileContent = 'START-->abcdefghilmnopqr<--END';
+        const fileName = 'test.txt';
         const filePath = path.join(filesPath, fileName);
 
-        const freeSystemMemory = os.freemem();
-        const size = freeSystemMemory + Utils.megabyteToByte(100);
+        const size = 30;
 
-        try {
-            debugger;
-            await FakeFileGenerator.generateFile(filePath, size);
-            throw Error('should go in the catch');
-        } catch (e) {
-            assert.strictEqual(e.message, 'should go in the catch');
+        return Promise.resolve()
+            .then(generateFile)
+            .then(checkGeneratedFile)
+            .catch((err) => {
+                throw err;
+            })
+
+        function generateFile() {
+            const options = {
+                type: 'txt',
+            }
+            return FakeFileGenerator.generateFile(filePath, size, options);
         }
-    })
+        async function checkGeneratedFile() {
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
+            const fileContent = await fsPromise.readFile(filePath);
+            assert.strictEqual(fileContent.toString(), expectedFileContent);
+        }
+    }, 100000)
+    test('generate file txt, (size less than START--><--END)', () => {
 
-    describe('writeFile txt', () => {
-        test.only('generate file txt', () => {
-            /**
-             * make file of 50MB type png
-             */
-            const fileName = 'test.txt';
-            const filePath = path.join(filesPath, fileName);
+        const expectedFileContent = 'START-->abcd';
+        const fileName = 'test.txt';
+        const filePath = path.join(filesPath, fileName);
 
-            const size = Utils.megabyteToByte(50);
+        const size = 12;
 
-            return Promise.resolve()
-                .then(generateFile)
-                .then(checkGeneratedFile)
-                .catch((err) => {
-                    throw err;
-                })
+        return Promise.resolve()
+            .then(generateFile)
+            .then(checkGeneratedFile)
+            .catch((err) => {
+                throw err;
+            })
 
-            function generateFile() {
-                const options = {
-                    type: 'txt',
-                }
-                return FakeFileGenerator.generateFile(filePath, size, options);
+        function generateFile() {
+            const options = {
+                type: 'txt',
             }
-            async function checkGeneratedFile() {
-                const fileToCheckStats = await fsPromise.stat(filePath);
-                assert.strictEqual(fileToCheckStats.size, size);
+            return FakeFileGenerator.generateFile(filePath, size, options);
+        }
+        async function checkGeneratedFile() {
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
+            const fileContent = await fsPromise.readFile(filePath);
+            assert.strictEqual(fileContent.toString(), expectedFileContent);
+        }
+    }, 100000)
+    test('generate file txt, (size less than START-->)', () => {
+
+        const expectedFileContent = 'STAR';
+        const fileName = 'test.txt';
+        const filePath = path.join(filesPath, fileName);
+
+        const size = 4;
+
+        return Promise.resolve()
+            .then(generateFile)
+            .then(checkGeneratedFile)
+            .catch((err) => {
+                throw err;
+            })
+
+        function generateFile() {
+            const options = {
+                type: 'txt',
             }
-        }, 100000)
-    });
-})
+            return FakeFileGenerator.generateFile(filePath, size, options);
+        }
+        async function checkGeneratedFile() {
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
+            const fileContent = await fsPromise.readFile(filePath);
+            assert.strictEqual(fileContent.toString(), expectedFileContent);
+        }
+    }, 100000)
+    test('generate file txt, (size more than watermark)', () => {
 
+        const expectedEndFileContent = '<--END';
+        const watermarkSize = 16384;
+        const fileName = 'test.txt';
+        const filePath = path.join(filesPath, fileName);
 
-beforeEach(() => {
-    //do something
-})
+        const size = watermarkSize + 50;
 
-afterEach(() => {
-    //do something
-})
+        return Promise.resolve()
+            .then(generateFile)
+            .then(checkGeneratedFile)
+            .catch((err) => {
+                throw err;
+            })
 
+        function generateFile() {
+            const options = {
+                type: 'txt',
+            }
+            return FakeFileGenerator.generateFile(filePath, size, options);
+        }
+        async function checkGeneratedFile() {
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
+            const fileContent = await fsPromise.readFile(filePath);
+            const fileContentToCheck = fileContent
+                .toString()
+                .substr(fileContent.length - expectedEndFileContent.length,fileContent.length-1);
+            assert.strictEqual(fileContentToCheck, expectedEndFileContent);
+        }
+    }, 100000)
+    test('generate file txt, (size double than watermark)', () => {
 
-beforeAll(() => {
-    //do something
-})
+        const expectedEndFileContent = '<--END';
+        const watermarkSize = 16384 * 2;
+        const fileName = 'test.txt';
+        const filePath = path.join(filesPath, fileName);
 
-afterAll(() => {
-    //do something
-})
+        const size = watermarkSize;
+
+        return Promise.resolve()
+            .then(generateFile)
+            .then(checkGeneratedFile)
+            .catch((err) => {
+                throw err;
+            })
+
+        function generateFile() {
+            const options = {
+                type: 'txt',
+            }
+            return FakeFileGenerator.generateFile(filePath, size, options);
+        }
+        async function checkGeneratedFile() {
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
+            const fileContent = await fsPromise.readFile(filePath);
+            const fileContentToCheck = fileContent
+                .toString()
+                .substr(fileContent.length - expectedEndFileContent.length,fileContent.length-1);
+            assert.strictEqual(fileContentToCheck, expectedEndFileContent);
+        }
+    }, 100000)
+    test('generate file txt, (size double than watermark plus 5)', () => {
+
+        const expectedEndFileContent = '<--END';
+        const watermarkSize = (16384 * 2) +5;
+        const fileName = 'test.txt';
+        const filePath = path.join(filesPath, fileName);
+
+        const size = watermarkSize;
+
+        return Promise.resolve()
+            .then(generateFile)
+            .then(checkGeneratedFile)
+            .catch((err) => {
+                throw err;
+            })
+
+        function generateFile() {
+            const options = {
+                type: 'txt',
+            }
+            return FakeFileGenerator.generateFile(filePath, size, options);
+        }
+        async function checkGeneratedFile() {
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
+            const fileContent = await fsPromise.readFile(filePath);
+            const fileContentToCheck = fileContent
+                .toString()
+                .substr(fileContent.length - expectedEndFileContent.length,fileContent.length-1);
+            assert.strictEqual(fileContentToCheck, expectedEndFileContent);
+        }
+    }, 100000)
+});
