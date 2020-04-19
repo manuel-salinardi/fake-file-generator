@@ -29,14 +29,14 @@ describe('writeFile not typed', () => {
         const size = bufferMaxLength + Utils.megabyteToByte(50);
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
-            return FakeFileGenerator.generateFile(filePath, size);
+        function makeFile() {
+            return FakeFileGenerator.makeFile(filePath, size);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -50,14 +50,14 @@ describe('writeFile not typed', () => {
         const size = bufferMaxLength - Utils.megabyteToByte(5);
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
-            return FakeFileGenerator.generateFile(filePath, size);
+        function makeFile() {
+            return FakeFileGenerator.makeFile(filePath, size);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -72,14 +72,14 @@ describe('writeFile not typed', () => {
         const size = defaultHighWaterMarkSize - 500;
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
-            return FakeFileGenerator.generateFile(filePath, size);
+        function makeFile() {
+            return FakeFileGenerator.makeFile(filePath, size);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -98,17 +98,17 @@ describe('writeFile txt', () => {
         const size = 30;
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
+        function makeFile() {
             const options = {
                 type: 'txt',
             }
-            return FakeFileGenerator.generateFile(filePath, size, options);
+            return FakeFileGenerator.makeFile(filePath, size, options);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -126,17 +126,17 @@ describe('writeFile txt', () => {
         const size = 12;
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
+        function makeFile() {
             const options = {
                 type: 'txt',
             }
-            return FakeFileGenerator.generateFile(filePath, size, options);
+            return FakeFileGenerator.makeFile(filePath, size, options);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -154,17 +154,17 @@ describe('writeFile txt', () => {
         const size = 4;
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
+        function makeFile() {
             const options = {
                 type: 'txt',
             }
-            return FakeFileGenerator.generateFile(filePath, size, options);
+            return FakeFileGenerator.makeFile(filePath, size, options);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -183,17 +183,17 @@ describe('writeFile txt', () => {
         const size = watermarkSize + 50;
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
+        function makeFile() {
             const options = {
                 type: 'txt',
             }
-            return FakeFileGenerator.generateFile(filePath, size, options);
+            return FakeFileGenerator.makeFile(filePath, size, options);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -215,17 +215,17 @@ describe('writeFile txt', () => {
         const size = watermarkSize;
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
+        function makeFile() {
             const options = {
                 type: 'txt',
             }
-            return FakeFileGenerator.generateFile(filePath, size, options);
+            return FakeFileGenerator.makeFile(filePath, size, options);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);
@@ -247,17 +247,17 @@ describe('writeFile txt', () => {
         const size = watermarkSize;
 
         return Promise.resolve()
-            .then(generateFile)
+            .then(makeFile)
             .then(checkGeneratedFile)
             .catch((err) => {
                 throw err;
             })
 
-        function generateFile() {
+        function makeFile() {
             const options = {
                 type: 'txt',
             }
-            return FakeFileGenerator.generateFile(filePath, size, options);
+            return FakeFileGenerator.makeFile(filePath, size, options);
         }
         async function checkGeneratedFile() {
             const fileToCheckStats = await fsPromise.stat(filePath);

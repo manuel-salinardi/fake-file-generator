@@ -13,8 +13,9 @@ const debug = require('debug')('fake-file-generator:main');
 const FakeFileGeneratorError = require('./fake-file-generator-error');
 
 class FakeFileGenerator {
-    static generateFile(filePath, size, options = {}) {
-        debug(`generateFile: filePath ${filePath}, size ${Utils.formatNumber(size)}, options: ${JSON.stringify(options)}`);
+
+    static makeFile(filePath, size, options = {}) {
+        debug(`makeFile: filePath ${filePath}, size ${Utils.formatNumber(size)}, options: ${JSON.stringify(options)}`);
 
         return Promise.resolve()
             .then(checkParameters)
@@ -23,9 +24,9 @@ class FakeFileGenerator {
             .catch(err => {
                 debug(err);
                 if (err instanceof FakeFileGeneratorError) {
-                    console.error(`generateFile: ${err.message}`);
+                    console.error(`makeFile: ${err.message}`);
                 } else {
-                    console.error(`generateFile: unknown error`);
+                    console.error(`makeFile: unknown error`);
                 }
             })
 
