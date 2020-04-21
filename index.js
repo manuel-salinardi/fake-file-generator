@@ -19,13 +19,25 @@ if (require.main !== module) {
     debug('process.argv', args);
     const outputFilePath = Utils.getProgramArg(args, '--fileName', '-f');
     const size = Utils.getProgramArg(args, '--size', '-s');
+    const type = Utils.getProgramArg(args, '--type', '-t');
 
     debug('fileName', outputFilePath);
     debug('size', size);
+    debug('type', type);
+
+    if (!outputFilePath) {
+        console.error(`missing required fileName parameter`);
+        process.exit(1);
+    }
+
+    if (!size) {
+        console.error(`missing required size parameter`);
+        process.exit(1);
+    }
 
     console.log('creating file...');
     console.time('program');
-    FakeFileGenerator.makeFile(outputFilePath, Number(size))
+    FakeFileGenerator.makeFile(outputFilePath, Number(size), {type})
         .then(() => {
             console.timeEnd('program');
             console.log('DONE!');

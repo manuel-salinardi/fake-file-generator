@@ -28,6 +28,7 @@ class FakeFileGenerator {
                 } else {
                     console.error(`makeFile: unknown error`);
                 }
+                process.exit(1);
             })
 
         function checkParameters() {
@@ -40,8 +41,8 @@ class FakeFileGenerator {
             if (size <= 0) {
                 throw new FakeFileGeneratorError(`size parameter cannot be equal or less than 0`);
             }
-            if (size !== 0 && typeof size !== 'undefined' && typeof size !== 'number') {
-                throw new FakeFileGeneratorError(`wrong type size parameter, should be number, but found: ${typeof size}`);
+            if (typeof size !== 'number' || isNaN(size)) {
+                throw new FakeFileGeneratorError(`wrong type size parameter, invalid number: ${size}`);
             }
             if (size > bufferMaxLength) {
                 debug(`size parameter > bufferMaxLength. size: ${Utils.formatNumber(size)}, bufferMaxLength: ${Utils.formatNumber(bufferMaxLength)}`);
@@ -51,6 +52,18 @@ class FakeFileGenerator {
             if (options.type && options.type !== 'txt') {
                 throw new FakeFileGeneratorError(`unknown file type: ${options.type}`);
             }
+        }
+        function createWritableStream() {
+            const writableStream = fs.createWriteStream(outputFilePath, {emitClose: true, autoClose: true});
+
+            writableStream.on('error', reject);
+            writableStream.on('pause', () => debug('stream paused'));
+            writableStream.on('resume', () => debug('stream resumed'));
+            writableStream.on('finish', () => debug('stream finished'));
+            writableStream.on('close', () => {
+                debug('stream closed')
+                resolve();
+            });
         }
         function generate() {
             let objectFileType;

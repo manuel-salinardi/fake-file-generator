@@ -1,13 +1,21 @@
 const fs = require('fs');
 const debug = require('debug')('fake-file-generator:no-type');
 
+const FakeFileGeneratorError = require('../fake-file-generator-error');
+
 class NoType {
 
     makeFile(outputFilePath, size) {
         return new Promise((resolve, reject) => {
             const writableStream = fs.createWriteStream(outputFilePath, {emitClose: true, autoClose: true});
 
-            writableStream.on('error', reject);
+            writableStream.on('error', (err) => {
+                if (err.code === 'ENOENT') {
+                    return reject(new FakeFileGeneratorError(`filePath parameter: directory not found`));
+                }
+                reject(err);
+                debug(err);
+            });
             writableStream.on('pause', () => debug('stream paused'));
             writableStream.on('resume', () => debug('stream resumed'));
             writableStream.on('finish', () => debug('stream finished'));

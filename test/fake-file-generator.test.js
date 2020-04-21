@@ -22,6 +22,31 @@ describe('megabytes to bytes', () => {
     })
 })
 
+describe('handle errors', function () {
+    test.only('write file with wrong filePath parameter', () => {
+        const fileName = 'test.png';
+        const notExistsFolder = 'not-exists'
+        const filePath = path.join(filesPath, notExistsFolder, fileName);
+
+        const size = bufferMaxLength + Utils.megabyteToByte(1);
+
+        return Promise.resolve()
+            .then(makeFile)
+            .then(checkGeneratedFile)
+            .catch((err) => {
+                throw err;
+            })
+
+        function makeFile() {
+            return FakeFileGenerator.makeFile(filePath, size);
+        }
+        async function checkGeneratedFile() {
+            const fileToCheckStats = await fsPromise.stat(filePath);
+            assert.strictEqual(fileToCheckStats.size, size);
+        }
+    })
+});
+
 describe('writeFile not typed', () => {
     test('generate file not typed at specific size, bigger than buffer.constants.MAX_LENGTH', () => {
         const fileName = 'test.png';
@@ -275,6 +300,7 @@ describe('writeFile txt', () => {
 describe('cli mode', () => {
     test('generate not typed file', async () => {
 
+        const notExpectedEndFileContent = '<--END';
         const indexFilePath = path.join(process.cwd(), 'index.js');
 
         const fileName = 'test.png';
@@ -289,10 +315,93 @@ describe('cli mode', () => {
         await new Promise((resolve, reject) => {
             forked.on('close', resolve)
             forked.on('error', reject)
+            forked.on('exit', code => {
+                if (code !== 0) reject();
+            })
         })
 
         const fileToCheckStats = await fsPromise.stat(filePath);
         assert.strictEqual(fileToCheckStats.size, size);
+        const fileContent = await fsPromise.readFile(filePath);
+        assert.strictEqual(fileContent.toString().includes(notExpectedEndFileContent), false);
+
+    }, 100000)
+    test('generate txt file', async () => {
+
+        const expectedEndFileContent = '<--END';
+        const indexFilePath = path.join(process.cwd(), 'index.js');
+
+        const fileName = 'test.txt';
+        const filePath = path.join(filesPath, fileName);
+
+        const size = Utils.megabyteToByte(1);
+        const type = 'txt';
+
+        const forked = fork(indexFilePath, ['--fileName', filePath, '--size', size, '--type', type], {
+            env: { DEBUG: 'fake-file-generator:*' }
+        });
+
+        await new Promise((resolve, reject) => {
+            forked.on('close', resolve)
+            forked.on('error', reject)
+            forked.on('exit', code => {
+                if (code !== 0) reject();
+            })
+        })
+
+        const fileToCheckStats = await fsPromise.stat(filePath);
+        assert.strictEqual(fileToCheckStats.size, size);
+        const fileContent = await fsPromise.readFile(filePath);
+        assert.strictEqual(fileContent.toString().includes(expectedEndFileContent), true);
+
+    }, 100000)
+    test('cli without filename required parameter', async () => {
+
+        const indexFilePath = path.join(process.cwd(), 'index.js');
+
+        const size = Utils.megabyteToByte(1);
+        const type = 'txt';
+
+        const forked = fork(indexFilePath, ['--size', size, '--type', type], {
+            env: { DEBUG: 'fake-file-generator:*' }
+        });
+
+        await new Promise((resolve, reject) => {
+            forked.on('close', resolve)
+            forked.on('error', reject)
+            forked.on('exit', code => {
+                if (code === 1) {
+                    resolve();
+                } else {
+                    reject();
+                }
+            })
+        })
+
+    }, 100000)
+    test('cli without size required parameter', async () => {
+
+        const indexFilePath = path.join(process.cwd(), 'index.js');
+
+        const fileName = 'test.txt';
+        const filePath = path.join(filesPath, fileName);
+
+
+        const forked = fork(indexFilePath, ['--fileName', filePath], {
+            env: { DEBUG: 'fake-file-generator:*' }
+        });
+
+        await new Promise((resolve, reject) => {
+            forked.on('close', resolve)
+            forked.on('error', reject)
+            forked.on('exit', code => {
+                if (code === 1) {
+                    resolve();
+                } else {
+                    reject();
+                }
+            })
+        })
 
     }, 100000)
 })

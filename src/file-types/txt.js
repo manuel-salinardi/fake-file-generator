@@ -1,6 +1,8 @@
 const fs = require('fs');
 const debug = require('debug')('fake-file-generator:txt');
 
+const FakeFileGeneratorError = require('../fake-file-generator-error');
+
 const START_FILE_MARK = 'START-->';
 const END_FILE_MARK = '<--END';
 const FILL_PATTERN = 'abcdefghilmnopqrstuvz';
@@ -11,7 +13,13 @@ class Txt {
         return new Promise((resolve, reject) => {
             const writableStream = fs.createWriteStream(outputFilePath, {emitClose: true, autoClose: true});
 
-            writableStream.on('error', reject);
+            writableStream.on('error', (err) => {
+                if (err.code === 'ENOENT') {
+                    return reject(new FakeFileGeneratorError(`missing required filePath parameter`));
+                }
+                reject(err);
+                debug(err);
+            });
             writableStream.on('pause', () => debug('stream paused'));
             writableStream.on('resume', () => debug('stream resumed'));
             writableStream.on('finish', () => debug('stream finished'));
