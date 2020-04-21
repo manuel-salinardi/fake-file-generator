@@ -53,18 +53,6 @@ class FakeFileGenerator {
                 throw new FakeFileGeneratorError(`unknown file type: ${options.type}`);
             }
         }
-        function createWritableStream() {
-            const writableStream = fs.createWriteStream(outputFilePath, {emitClose: true, autoClose: true});
-
-            writableStream.on('error', reject);
-            writableStream.on('pause', () => debug('stream paused'));
-            writableStream.on('resume', () => debug('stream resumed'));
-            writableStream.on('finish', () => debug('stream finished'));
-            writableStream.on('close', () => {
-                debug('stream closed')
-                resolve();
-            });
-        }
         function generate() {
             let objectFileType;
 

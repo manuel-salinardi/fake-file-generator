@@ -17,6 +17,13 @@ class Utils {
         }
         return argValue;
     }
+
+    static readInputLine() {
+        return new Promise((resolve, reject) => {
+            process.stdin.on('data', (data) => resolve(data.toString()))
+            process.stdin.on('error', reject)
+        })
+    }
 }
 
 module.exports = Utils;

@@ -4,6 +4,9 @@ const fs = require('fs');
 const fsPromise = {
     stat: promisify(fs.stat),
     readFile: promisify(fs.readFile),
+    unlink: promisify(fs.unlink),
+    access: promisify(fs.access),
+    readdir: promisify(fs.readdir),
 }
 
 class FsPromise {
