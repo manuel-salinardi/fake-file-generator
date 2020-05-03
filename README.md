@@ -36,7 +36,7 @@ Require in a js file and use as a module
 ```javascript
 const fakeFileGenerator = require('fake-file-generator');
 
-const filePath = 'output/hello.png'; // file path to generate 
+const filePath = 'output/hello.txt'; // file path to generate 
 const size = 10000; // size of the file in bytes (10MB)
 
 // makeFile() return a promise resolved when the file is completely written on the file system
