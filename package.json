@@ -1,6 +1,6 @@
 {
   "name": "fake-file-generator",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "File generator at specific type and size",
   "main": "index.js",
   "engines": {
