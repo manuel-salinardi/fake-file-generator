@@ -10,9 +10,6 @@ class NoType {
             const writableStream = fs.createWriteStream(outputFilePath, {emitClose: true, autoClose: true});
 
             writableStream.on('error', (err) => {
-                if (err.code === 'ENOENT') {
-                    return reject(new FakeFileGeneratorError(`filePath parameter: directory not found`));
-                }
                 reject(err);
                 debug(err);
             });

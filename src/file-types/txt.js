@@ -14,9 +14,6 @@ class Txt {
             const writableStream = fs.createWriteStream(outputFilePath, {emitClose: true, autoClose: true});
 
             writableStream.on('error', (err) => {
-                if (err.code === 'ENOENT') {
-                    return reject(new FakeFileGeneratorError(`missing required filePath parameter`));
-                }
                 reject(err);
                 debug(err);
             });

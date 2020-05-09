@@ -21,15 +21,6 @@ class FakeFileGenerator {
             .then(checkParameters)
             .then(checkOptions)
             .then(generate)
-            .catch(err => {
-                debug(err);
-                if (err instanceof FakeFileGeneratorError) {
-                    console.error(`makeFile: ${err.message}`);
-                } else {
-                    console.error(`makeFile: unknown error`);
-                }
-                process.exit(1);
-            })
 
         function checkParameters() {
             if (!filePath) {
