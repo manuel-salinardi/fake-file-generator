@@ -22,8 +22,14 @@ This is a [Node.js](https://nodejs.org/en/) module available through the
 [npm registry](https://www.npmjs.com/). Installation is done using the
 [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
+Install in your project and use as js module:
 ```sh
 $ npm install fake-file-generator
+```
+
+Install globally and use as CLI:
+```sh
+$ npm install -g fake-file-generator
 ```
 
 ## Usage
@@ -62,12 +68,12 @@ Run as a node CLI program and pass parameters directly to it
 
 ###### invalid generic file:
 ```sh
-$ node fake-file-generator --fileName hello.txt --size 1000
+$ fake-file-generator --fileName hello.txt --size 1000
 ```
 
 ###### valid txt file:
 ```sh
-$ node fake-file-generator --fileName hello.txt --size 1000 --type txt
+$ fake-file-generator --fileName hello.txt --size 1000 --type txt
 ```
 
 #### 3) Interactive CLI Mode
@@ -75,5 +81,5 @@ Run as a node CLI program with no parameters and follow the program instructions
 
 
 ```sh
-$ node fake-file-generator
+$ fake-file-generator
 ```
