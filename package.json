@@ -10,11 +10,20 @@
     "test": "jest",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
   },
+  "bin": {
+    "fake-file-generator": "./index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/manuel-salinardi/fake-file-generator.git"
   },
   "keywords": [
+    "cli-app",
+    "cli",
+    "bin",
+    "file",
+    "create-file",
+    "make-file",
     "file-generator",
     "fake-file-generator"
   ],

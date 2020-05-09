@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const debug = require('debug')('fake-file-generator:index');
 
 const Utils = require('./src/utils');
