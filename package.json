@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/manuel-salinardi/fake-file-generator#readme",
   "devDependencies": {
+    "debug": "4.2.0",
     "jest": "25.3.0"
   }
 }

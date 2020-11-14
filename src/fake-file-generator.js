@@ -1,14 +1,12 @@
 const buffer = require('buffer');
-
 const Utils = require('./utils');
-
 const Txt = require('./file-types/txt');
 const NoType = require('./file-types/no-type');
 
 // the max integer value that Buffer.alloc(size) supports
 const bufferMaxLength = buffer.constants.MAX_LENGTH;
 
-const debug = require('debug')('fake-file-generator:main');
+const debug = Utils.getDebugModuleOrMock('fake-file-generator:main');
 
 const FakeFileGeneratorError = require('./fake-file-generator-error');
 

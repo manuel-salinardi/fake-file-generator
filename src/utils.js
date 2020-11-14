@@ -1,4 +1,7 @@
 class Utils {
+    static getDebugModuleOrMock(debugKey) {
+        return process.env.DEBUG ? require('debug')(debugKey) : function() {};
+    }
     static megabyteToByte(megabytes) {
         return megabytes * 1e+6;
     }

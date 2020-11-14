@@ -1,7 +1,7 @@
 const fs = require('fs');
-const debug = require('debug')('fake-file-generator:no-type');
+const Utils = require('../utils');
 
-const FakeFileGeneratorError = require('../fake-file-generator-error');
+const debug = Utils.getDebugModuleOrMock('fake-file-generator:no-type');
 
 class NoType {
 

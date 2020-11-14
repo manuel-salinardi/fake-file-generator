@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-const debug = require('debug')('fake-file-generator:index');
 
 const Utils = require('./src/utils');
+
+const debug = Utils.getDebugModuleOrMock('fake-file-generator:index');
+
 
 // --fileName | -f
 // --size | -s
